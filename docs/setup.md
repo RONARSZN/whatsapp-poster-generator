@@ -37,6 +37,26 @@ DEFAULT_IMAGE_QUALITY=low
 
 ## Canva Mode
 
-Canva is the editable design path. The system prepares the poster brief, selected asset paths and copy. Canva can then generate or edit the poster as a design.
+Canva is the default editable design path. The system prepares the poster brief, selected asset paths and copy. Canva can then generate or edit the poster as a design.
 
 Use Canva when you want editable posters, reusable brand layouts and manual refinement. Use OpenAI when you want faster direct image output.
+
+Default command:
+
+```text
+poster wakepark day pass promo portrait
+```
+
+OpenAI override:
+
+```text
+poster wakepark day pass promo portrait mode=openai
+```
+
+Optional peg notes:
+
+```text
+poster wakepark day pass promo portrait peg="bold sports layout with energetic color"
+```
+
+Peg notes guide mood, layout logic, composition, color direction or typography feel. They do not replace brand assets.

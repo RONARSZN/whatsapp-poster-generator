@@ -9,16 +9,23 @@ function parsePosterCommand(text) {
 
   const body = raw.replace(/^poster\s*/i, "").trim();
   const kv = parseKeyValueArgs_(body);
-  const tokens = body.split(/\s+/).filter(Boolean);
+  const positionalBody = stripKeyValueArgs_(body);
+  const tokens = positionalBody.split(/\s+/).filter(Boolean);
 
-  const product = kv.product || tokens[0] || "";
+  const product = kv.product || findProductToken_(tokens) || "";
   const size = normalizeSize_(kv.size || findSizeToken_(tokens) || "portrait");
+  const mode = normalizeMode_(kv.mode || "canva");
   const style = kv.style || "default";
   const cta = kv.cta || "Order today";
+  const pegNotes = kv.peg || kv.pegnotes || kv.inspo || "";
   const offer = kv.offer || inferOffer_(tokens);
 
   if (!product) {
     return { ok: false, error: "Missing product. Example: poster coffee 20% off portrait" };
+  }
+
+  if (!mode) {
+    return { ok: false, error: "Invalid mode. Use mode=canva, mode=openai or mode=local." };
   }
 
   return {
@@ -27,8 +34,10 @@ function parsePosterCommand(text) {
       product: product.toLowerCase(),
       offer: offer || "Special offer",
       size: size,
+      mode: mode,
       style: style,
       cta: cta,
+      pegNotes: pegNotes,
       rawText: raw
     }
   };
@@ -42,6 +51,10 @@ function parseKeyValueArgs_(body) {
     result[match[1].toLowerCase()] = String(match[2]).replace(/^["']|["']$/g, "");
   }
   return result;
+}
+
+function stripKeyValueArgs_(body) {
+  return String(body || "").replace(/(\w+)=("[^"]+"|'[^']+'|[^\s]+)/g, "").trim();
 }
 
 function inferOffer_(tokens) {
@@ -62,6 +75,18 @@ function findSizeToken_(tokens) {
   return "";
 }
 
+function findProductToken_(tokens) {
+  const sizes = { square: true, portrait: true, story: true, landscape: true };
+  for (let i = 0; i < tokens.length; i++) {
+    const token = String(tokens[i] || "");
+    const normalized = token.toLowerCase();
+    if (!sizes[normalized] && !/^\w+=/.test(token)) {
+      return token;
+    }
+  }
+  return "";
+}
+
 function normalizeSize_(size) {
   const value = String(size || "").toLowerCase();
   if (value === "square") return "1024x1024";
@@ -69,3 +94,10 @@ function normalizeSize_(size) {
   return "1024x1536";
 }
 
+function normalizeMode_(mode) {
+  const value = String(mode || "").toLowerCase();
+  if (value === "canva") return "canva";
+  if (value === "openai" || value === "image") return "openai";
+  if (value === "local" || value === "test") return "local";
+  return "";
+}

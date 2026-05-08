@@ -48,6 +48,29 @@ function handlePosterRequest_(sender, text, messageId) {
   }
 
   const prompt = buildPosterPrompt(command.data, match.manifest);
+  if (command.data.mode === "local") {
+    sendWhatsAppText(sender, buildLocalValidationMessage_(command.data, match.manifest, prompt));
+    logEvent_("poster_validated", {
+      sender: sender,
+      messageId: messageId,
+      product: command.data.product,
+      mode: command.data.mode
+    });
+    return { ok: true, mode: command.data.mode, prompt: prompt };
+  }
+
+  if (command.data.mode === "canva") {
+    const brief = buildCanvaPosterBrief(command.data, match.manifest);
+    sendWhatsAppText(sender, buildCanvaBriefMessage_(brief));
+    logEvent_("canva_brief_created", {
+      sender: sender,
+      messageId: messageId,
+      product: command.data.product,
+      mode: command.data.mode
+    });
+    return { ok: true, mode: command.data.mode, brief: brief };
+  }
+
   const assets = loadSelectedAssets(match.manifest, match.folder);
   const image = generatePosterWithOpenAI(prompt, assets, command.data);
   const saved = savePosterToDrive(image, command.data, match.manifest);
@@ -57,9 +80,45 @@ function handlePosterRequest_(sender, text, messageId) {
     sender: sender,
     messageId: messageId,
     product: command.data.product,
+    mode: command.data.mode,
     outputFileId: saved.fileId
   });
 
-  return { ok: true, fileId: saved.fileId };
+  return { ok: true, mode: command.data.mode, fileId: saved.fileId };
 }
 
+function buildCanvaBriefMessage_(brief) {
+  const lines = [
+    "Canva poster brief ready.",
+    "",
+    "Title: " + brief.title,
+    "Brand: " + brief.brand,
+    "Offer: " + brief.offer,
+    "Size: " + brief.size,
+    "CTA: " + brief.cta
+  ];
+
+  if (brief.pegNotes) {
+    lines.push("Peg: " + brief.pegNotes);
+  }
+
+  return lines.concat([
+    "Assets: " + Object.keys(brief.requiredAssets || {}).join(", "),
+    "",
+    brief.prompt
+  ]).join("\n");
+}
+
+function buildLocalValidationMessage_(command, manifest, prompt) {
+  return [
+    "Local validation passed.",
+    "",
+    "Mode: " + command.mode,
+    "Brand: " + (manifest.brand || manifest.product),
+    "Product: " + manifest.product,
+    "Offer: " + command.offer,
+    "Size: " + command.size,
+    "",
+    prompt
+  ].join("\n");
+}

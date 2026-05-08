@@ -7,6 +7,7 @@ function buildCanvaPosterBrief(command, manifest) {
     offer: command.offer,
     size: command.size,
     cta: command.cta || manifest.defaultCta || "Order today",
+    pegNotes: command.pegNotes || "",
     styleNotes: manifest.styleNotes || "",
     assetCategories: Object.keys(manifest.categoryFolders || {}),
     requiredAssets: manifest.assets || {},

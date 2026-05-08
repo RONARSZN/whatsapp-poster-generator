@@ -33,9 +33,30 @@ This checks the Homies example asset folders, validates referenced files and bui
 
 ## Poster Production Modes
 
-- `local`: validates assets and builds the poster brief only
-- `openai`: generates a finished image through OpenAI after billing is enabled
-- `canva`: prepares a structured brief and asset map for an editable Canva poster workflow
+- `canva`: default mode. Prepares a structured brief and asset map for an editable Canva poster workflow.
+- `openai`: generates a finished image through OpenAI after billing is enabled.
+- `local`: validates assets and builds the poster brief only.
+
+Default command:
+
+```text
+poster wakepark day pass promo portrait
+```
+
+Explicit mode override:
+
+```text
+poster wakepark day pass promo portrait mode=openai
+poster wakepark day pass promo portrait mode=local
+```
+
+Optional inspiration notes:
+
+```text
+poster wakepark day pass promo portrait peg="bold sports layout with energetic color"
+```
+
+Peg notes are used as creative direction only. Brand assets and the manifest stay the source of truth.
 
 ## Setup
 

@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $assetRoot = Join-Path $root "templates\asset-folder-example"
-$commandText = "poster wakepark day pass promo portrait"
+$commandText = 'poster wakepark day pass promo portrait peg="bold sports layout with energetic color"'
 
 function Parse-PosterCommand {
     param([string]$Text)
@@ -12,18 +12,39 @@ function Parse-PosterCommand {
     }
 
     $body = ($Text -replace '^poster\s*', '').Trim()
-    $tokens = $body -split '\s+' | Where-Object { $_ }
-    $product = $tokens[0].ToLowerInvariant()
+    $kv = @{}
+    [regex]::Matches($body, '(\w+)=("[^"]+"|''[^'']+''|[^\s]+)') | ForEach-Object {
+        $kv[$_.Groups[1].Value.ToLowerInvariant()] = ($_.Groups[2].Value -replace '^["'']|["'']$', '')
+    }
+    $positionalBody = [regex]::Replace($body, '(\w+)=("[^"]+"|''[^'']+''|[^\s]+)', '').Trim()
+    $tokens = $positionalBody -split '\s+' | Where-Object { $_ }
+    $productToken = $tokens | Where-Object {
+        $_ -notin @('square', 'portrait', 'story', 'landscape') -and $_ -notmatch '^\w+='
+    } | Select-Object -First 1
+    $product = if ($kv.product) { $kv.product.ToLowerInvariant() } elseif ($productToken) { $productToken.ToLowerInvariant() } else { "" }
     $sizeToken = ($tokens | Where-Object { $_ -in @('square', 'portrait', 'story', 'landscape') } | Select-Object -First 1)
     if (-not $sizeToken) { $sizeToken = "portrait" }
     $size = if ($sizeToken -eq "square") { "1024x1024" } elseif ($sizeToken -eq "landscape") { "1536x1024" } else { "1024x1536" }
-    $offer = (($tokens | Select-Object -Skip 1) | Where-Object { $_ -notin @('square', 'portrait', 'story', 'landscape') }) -join ' '
+    $mode = if ($kv.mode) { $kv.mode.ToLowerInvariant() } else { "canva" }
+    if ($mode -eq "image") { $mode = "openai" }
+    if ($mode -eq "test") { $mode = "local" }
+    if ($mode -notin @("canva", "openai", "local")) { throw "Invalid mode. Use mode=canva, mode=openai or mode=local." }
+    $pegNotes = if ($kv.peg) { $kv.peg } elseif ($kv.pegnotes) { $kv.pegnotes } elseif ($kv.inspo) { $kv.inspo } else { "" }
+    $offer = if ($kv.offer) {
+        $kv.offer
+    } else {
+        (($tokens | Select-Object -Skip 1) | Where-Object {
+            $_ -notin @('square', 'portrait', 'story', 'landscape') -and $_ -notmatch '^\w+='
+        }) -join ' '
+    }
 
     [pscustomobject]@{
         product = $product
         offer = if ($offer) { $offer } else { "Special offer" }
         size = $size
+        mode = $mode
         cta = "Order today"
+        pegNotes = $pegNotes
     }
 }
 
@@ -77,7 +98,7 @@ function Test-ManifestAssets {
 function Build-Prompt {
     param($Command, $Manifest)
 
-    @(
+    $lines = @(
         "Create a promotional poster."
         ""
         "Brand: $($Manifest.brand)"
@@ -88,11 +109,23 @@ function Build-Prompt {
         "Available asset categories: $((($Manifest.categoryFolders.PSObject.Properties | Select-Object -ExpandProperty Name) -join ', '))"
         "Headline: $($Command.offer.ToUpperInvariant()) $($Manifest.product.ToUpperInvariant())"
         "CTA: $($Command.cta)"
+    )
+
+    if ($Command.pegNotes) {
+        $lines += @(
+            ""
+            "Inspiration direction: $($Command.pegNotes)"
+            "Use the inspiration only for mood, layout logic, composition, color direction or typography feel."
+            "Do not copy the reference design, logos, characters, exact layout, competitor branding or copyrighted elements."
+        )
+    }
+
+    ($lines + @(
         ""
         "Use the provided brand and product assets."
         "Keep all poster text readable."
         "Do not invent extra brand names."
-    ) -join [Environment]::NewLine
+    )) -join [Environment]::NewLine
 }
 
 function Build-CanvaBrief {
@@ -105,7 +138,9 @@ function Build-CanvaBrief {
         product = $Manifest.product
         offer = $Command.offer
         size = $Command.size
+        mode = $Command.mode
         cta = $Command.cta
+        pegNotes = $Command.pegNotes
         assetCategories = @($Manifest.categoryFolders.PSObject.Properties | Select-Object -ExpandProperty Name)
         requiredAssets = $Manifest.assets
         prompt = $Prompt
@@ -121,6 +156,7 @@ $canvaBrief = Build-CanvaBrief $parsed $match.manifest $prompt
 Write-Host "Local checks passed."
 Write-Host ""
 Write-Host "Sample command: $commandText"
+Write-Host "Resolved mode: $($parsed.mode)"
 Write-Host ""
 Write-Host "Generated prompt:"
 Write-Host $prompt

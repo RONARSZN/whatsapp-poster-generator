@@ -16,6 +16,40 @@ You can also use:
 poster product=wakepark offer="day pass promo" size=portrait cta="Ride with us"
 ```
 
+## Production Mode
+
+Canva is the default production mode:
+
+```text
+poster wakepark day pass promo portrait
+```
+
+Use an explicit mode only when you want to override the default:
+
+```text
+poster wakepark day pass promo portrait mode=canva
+poster wakepark day pass promo portrait mode=openai
+poster wakepark day pass promo portrait mode=local
+```
+
+Use `mode=canva` for editable poster production. Use `mode=openai` for direct image generation. Use `mode=local` for validation without generation.
+
+## Inspiration Notes
+
+Use `peg=` when you want to send creative direction with the request:
+
+```text
+poster wakepark day pass promo portrait peg="bold sports layout with energetic color"
+```
+
+The peg should describe what to borrow: layout feel, mood, color direction, composition or typography feel. Do not use it to copy another design exactly.
+
+You can also use:
+
+```text
+poster wakepark day pass promo portrait inspo="clean magazine layout, big headline, strong product photo"
+```
+
 ## Asset Folder Rule
 
 Use one folder per brand or campaign. Put category folders inside it.
@@ -122,7 +156,7 @@ Use: poster product offer size. Example: poster wakepark day pass promo portrait
 
 ## Current Build Status
 
-Local validation is ready. Canva can be used for editable poster production. OpenAI, Google Drive deployment and WhatsApp webhook setup still require your live credentials and account approvals.
+Local validation is ready. Canva is the default poster production workflow. OpenAI, Google Drive deployment and WhatsApp webhook setup still require your live credentials and account approvals.
 
 ## Canva Mode
 
