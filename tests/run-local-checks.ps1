@@ -46,10 +46,10 @@ function Parse-PosterCommand {
     $sizeToken = $tokens | Where-Object { Test-SizeToken $_ } | Select-Object -First 1
     if (-not $sizeToken) { $sizeToken = "portrait" }
 
-    $mode = if ($kv.mode) { $kv.mode.ToLowerInvariant() } else { "canva" }
-    if ($mode -eq "image") { $mode = "openai" }
+    $mode = if ($kv.mode) { $kv.mode.ToLowerInvariant() } else { "template" }
+    if ($mode -eq "poster") { $mode = "template" }
     if ($mode -eq "test") { $mode = "local" }
-    if ($mode -notin @("canva", "openai", "local")) { throw "Invalid mode. Use mode=canva, mode=openai or mode=local." }
+    if ($mode -notin @("template", "canva", "local")) { throw "Invalid mode. This zero-cost prototype supports mode=template, mode=canva or mode=local." }
 
     [pscustomobject]@{
         product = if ($kv.product) { $kv.product.ToLowerInvariant() } elseif ($productToken) { $productToken.ToLowerInvariant() } else { "" }
@@ -181,7 +181,7 @@ function Invoke-Case {
         [string]$ExpectedProduct,
         [string]$ExpectedOffer,
         [string]$ExpectedCta,
-        [string]$ExpectedMode = "canva"
+        [string]$ExpectedMode = "template"
     )
 
     $parsed = Parse-PosterCommand $CommandText
@@ -211,6 +211,7 @@ $results = @(
     Invoke-Case "multi-word alias" 'poster pro shop summer sale portrait' "proshop" "summer sale" "Shop the gear"
     Invoke-Case "quoted product" 'poster product="homies messhall" offer="rice bowl promo" size=portrait' "homies messhall" "rice bowl promo" "Eat with us"
     Invoke-Case "explicit CTA" 'poster ayo brunch special portrait cta="Visit today"' "ayo" "brunch special" "Visit today"
+    Invoke-Case "template mode" 'poster wakepark weekend promo portrait mode=template' "wakepark" "weekend promo" "Ride with us" "template"
     Invoke-Case "local mode" 'poster wakepark test promo portrait mode=local' "wakepark" "test promo" "Ride with us" "local"
 )
 

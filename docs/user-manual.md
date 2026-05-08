@@ -2,7 +2,7 @@
 
 ## What It Does
 
-You send a poster command. The system finds the matching asset folder, reads its `manifest.json`, builds a poster prompt, generates a poster and sends it back through WhatsApp after live integrations are connected.
+You send a poster command. The system finds the matching asset folder, reads its `manifest.json`, renders a simple no-AI poster and sends it back through WhatsApp after live integrations are connected.
 
 ## Basic Command
 
@@ -18,7 +18,7 @@ poster product=wakepark offer="day pass promo" size=portrait cta="Ride with us"
 
 ## Production Mode
 
-Canva is the default production mode:
+Template is the default production mode:
 
 ```text
 poster wakepark day pass promo portrait
@@ -28,11 +28,11 @@ Use an explicit mode only when you want to override the default:
 
 ```text
 poster wakepark day pass promo portrait mode=canva
-poster wakepark day pass promo portrait mode=openai
+poster wakepark day pass promo portrait mode=template
 poster wakepark day pass promo portrait mode=local
 ```
 
-Use `mode=canva` for editable poster production. Use `mode=openai` for direct prompt-based image generation. Use `mode=local` for validation without generation.
+Use `mode=template` for the first working no-AI poster reply. Use `mode=canva` for editable poster briefs only. Use `mode=local` for validation without generation.
 
 ## Inspiration Notes
 
@@ -125,7 +125,6 @@ This checks the example folder, validates the manifest and builds a sample promp
 You need these script properties in Google Apps Script:
 
 ```text
-OPENAI_API_KEY
 WHATSAPP_ACCESS_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
@@ -162,10 +161,10 @@ Use: poster product offer size. Example: poster wakepark day pass promo portrait
 
 ## Current Build Status
 
-Local validation is ready. Canva is the default poster production workflow. OpenAI, Google Drive deployment and WhatsApp webhook setup still require your live credentials and account approvals.
+Local validation is ready. Template mode is the default poster production workflow for the first prototype. Google Drive deployment and WhatsApp webhook setup still require your live credentials and account approvals.
 
 ## Canva Mode
 
-Canva mode is for polished editable posters. The system prepares the poster brief, copy, brand notes and asset paths. Canva then creates or edits the poster as a design.
+Canva mode is for polished editable poster briefs. The system prepares the poster brief, copy, brand notes and asset paths. Canva then creates or edits the poster as a design if your account supports the required Canva features.
 
-Use Canva when quality control and brand asset control matter more than full automation. Use OpenAI when you want the fastest WhatsApp-to-image output and can accept prompt-based generation.
+Use Canva when quality control and brand asset control matter more than full automation. It stays brief-only in this zero-cost prototype.

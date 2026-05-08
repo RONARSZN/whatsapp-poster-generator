@@ -36,15 +36,12 @@ WhatsApp User
 Set these in Apps Script project settings:
 
 ```text
-OPENAI_API_KEY
 WHATSAPP_ACCESS_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
 POSTER_ASSETS_ROOT_FOLDER_ID
 OUTPUT_FOLDER_ID
 ALLOWED_USERS
-OPENAI_IMAGE_MODEL
-DEFAULT_IMAGE_QUALITY
 ```
 
 Do not hardcode live phone numbers, folder IDs, verify tokens or account-specific values in source files. Keep them in Apps Script Properties.
@@ -64,18 +61,13 @@ If the sender is not in `ALLOWED_USERS`, reply:
 Sorry, you are not authorized to use this poster generator.
 ```
 
-Recommended low-cost default:
-
-```text
-OPENAI_IMAGE_MODEL=gpt-image-1-mini
-DEFAULT_IMAGE_QUALITY=low
-```
+This prototype does not need OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
 
 ## Canva Mode
 
-Canva is the default editable design path. The system prepares the poster brief, selected asset paths and copy. Canva can then generate or edit the poster as a design.
+Template mode is the default prototype path. It creates a simple no-AI poster through Google Slides, exports it as PNG, saves it to Drive and sends it through WhatsApp.
 
-Use Canva when you want editable posters, reusable brand layouts and manual refinement. Use OpenAI when you want faster direct image output. Current OpenAI direct mode is prompt-based and does not yet preserve uploaded brand assets as image inputs.
+Use Canva mode only when you want an editable brief. It does not auto-create or export Canva designs in this zero-cost prototype.
 
 Default command:
 
@@ -83,10 +75,10 @@ Default command:
 poster wakepark day pass promo portrait
 ```
 
-OpenAI override:
+Template override:
 
 ```text
-poster wakepark day pass promo portrait mode=openai
+poster wakepark day pass promo portrait mode=template
 ```
 
 Optional peg notes:

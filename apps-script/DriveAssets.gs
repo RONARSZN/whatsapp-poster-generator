@@ -84,15 +84,22 @@ function savePosterToDrive(imageData, command, manifest) {
     Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyyMMdd-HHmmss")
   ].join("-") + ".png";
 
-  const bytes = Utilities.base64Decode(imageData.base64);
-  const blob = Utilities.newBlob(bytes, "image/png", filename);
+  let blob;
+  if (imageData.blob) {
+    blob = imageData.blob.setName(filename);
+  } else {
+    const bytes = Utilities.base64Decode(imageData.base64);
+    blob = Utilities.newBlob(bytes, "image/png", filename);
+  }
+
   const file = folder.createFile(blob);
 
   return {
     fileId: file.getId(),
     name: filename,
     url: file.getUrl(),
-    blob: blob
+    blob: blob,
+    sourceUrl: imageData.sourceUrl || ""
   };
 }
 

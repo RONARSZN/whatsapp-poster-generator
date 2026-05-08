@@ -4,7 +4,7 @@ Local-first poster request engine for WhatsApp-triggered promo posters.
 
 ## Purpose
 
-This project turns a short poster request into a structured poster brief. It validates brand asset folders, builds a prompt, supports an editable Canva workflow and can later connect to OpenAI, Google Drive and WhatsApp Cloud API.
+This project turns a short WhatsApp request into a simple no-AI poster reply. It validates brand asset folders, renders a prototype poster with Google Slides, saves the PNG to Drive and sends it back through WhatsApp.
 
 ## Current Build
 
@@ -14,8 +14,7 @@ This project turns a short poster request into a structured poster brief. It val
 - Brand category folders for AYO, PROSHOP, WAKEPARK and HOMIES MESSHALL
 - Command parser
 - Asset validation
-- Prompt builder
-- OpenAI image-generation wrapper
+- No-AI template poster renderer
 - Canva poster brief builder for editable poster production
 - WhatsApp Cloud API wrapper
 - PowerShell local checks
@@ -29,12 +28,12 @@ Run:
 powershell -ExecutionPolicy Bypass -File .\tests\run-local-checks.ps1
 ```
 
-This checks the Homies example asset folders, validates referenced files and builds a sample poster prompt without calling OpenAI or WhatsApp.
+This checks the Homies example asset folders, validates referenced files and builds sample poster data without calling paid generation APIs or WhatsApp.
 
 ## Poster Production Modes
 
-- `canva`: default mode. Prepares a structured brief and asset map for an editable Canva poster workflow.
-- `openai`: generates a finished image through OpenAI after billing is enabled. Current direct mode is prompt-based and does not yet preserve uploaded brand assets as image inputs.
+- `template`: default zero-cost prototype mode. Creates a simple no-AI poster image through Google Slides, saves it to Drive and sends it through WhatsApp.
+- `canva`: prepares a structured brief and asset map only. It does not auto-create or export designs.
 - `local`: validates assets and builds the poster brief only.
 
 Default command:
@@ -46,7 +45,8 @@ poster wakepark day pass promo portrait
 Explicit mode override:
 
 ```text
-poster wakepark day pass promo portrait mode=openai
+poster wakepark day pass promo portrait mode=template
+poster wakepark day pass promo portrait mode=canva
 poster wakepark day pass promo portrait mode=local
 ```
 
@@ -74,14 +74,7 @@ Validate the current folder structure:
 powershell -ExecutionPolicy Bypass -File .\tests\run-local-checks.ps1
 ```
 
-Try OpenAI generation after billing is active:
-
-```powershell
-$env:OPENAI_API_KEY="your-key-here"
-powershell -ExecutionPolicy Bypass -File .\tests\generate-openai-local.ps1
-```
-
-Do not paste real keys into committed files.
+This prototype does not require OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
 
 ## GitHub Sync Workflow
 

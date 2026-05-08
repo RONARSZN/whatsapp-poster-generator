@@ -90,6 +90,22 @@ function handlePosterRequest_(sender, text, messageId) {
     return { ok: true, mode: command.data.mode, prompt: prompt };
   }
 
+  if (command.data.mode === "template") {
+    const image = generatePosterWithTemplate(command.data, match.manifest, match.folder);
+    const saved = savePosterToDrive(image, command.data, match.manifest);
+    sendWhatsAppImage(sender, saved);
+
+    logEvent_("poster_generated", {
+      sender: sender,
+      messageId: messageId,
+      product: command.data.product,
+      mode: command.data.mode,
+      outputFileId: saved.fileId
+    });
+
+    return { ok: true, mode: command.data.mode, fileId: saved.fileId };
+  }
+
   if (command.data.mode === "canva") {
     const brief = buildCanvaPosterBrief(command.data, match.manifest);
     sendWhatsAppText(sender, buildCanvaBriefMessage_(brief));
@@ -102,20 +118,8 @@ function handlePosterRequest_(sender, text, messageId) {
     return { ok: true, mode: command.data.mode, brief: brief };
   }
 
-  const assets = loadSelectedAssets(match.manifest, match.folder);
-  const image = generatePosterWithOpenAI(prompt, assets, command.data);
-  const saved = savePosterToDrive(image, command.data, match.manifest);
-  sendWhatsAppImage(sender, saved);
-
-  logEvent_("poster_generated", {
-    sender: sender,
-    messageId: messageId,
-    product: command.data.product,
-    mode: command.data.mode,
-    outputFileId: saved.fileId
-  });
-
-  return { ok: true, mode: command.data.mode, fileId: saved.fileId };
+  sendWhatsAppText(sender, "Unsupported mode for this zero-cost prototype. Use mode=template, mode=canva or mode=local.");
+  return { ok: false, error: "Unsupported mode." };
 }
 
 function isSmokeTestCommand_(text) {

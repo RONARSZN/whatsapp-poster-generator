@@ -14,7 +14,7 @@ function parsePosterCommand(text) {
 
   const product = kv.product || findProductToken_(tokens) || "";
   const size = normalizeSize_(kv.size || findSizeToken_(tokens) || "portrait");
-  const mode = normalizeMode_(kv.mode || "canva");
+  const mode = normalizeMode_(kv.mode || "template");
   const style = kv.style || "default";
   const cta = kv.cta || "";
   const pegNotes = kv.peg || kv.pegnotes || kv.inspo || "";
@@ -25,7 +25,7 @@ function parsePosterCommand(text) {
   }
 
   if (!mode) {
-    return { ok: false, error: "Invalid mode. Use mode=canva, mode=openai or mode=local." };
+    return { ok: false, error: "Invalid mode. This zero-cost prototype supports mode=template, mode=canva or mode=local." };
   }
 
   return {
@@ -153,8 +153,8 @@ function normalizeSpaces_(value) {
 
 function normalizeMode_(mode) {
   const value = String(mode || "").toLowerCase();
+  if (value === "template" || value === "poster") return "template";
   if (value === "canva") return "canva";
-  if (value === "openai" || value === "image") return "openai";
   if (value === "local" || value === "test") return "local";
   return "";
 }
