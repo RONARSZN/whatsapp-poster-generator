@@ -34,7 +34,7 @@ This checks the Homies example asset folders, validates referenced files and bui
 ## Poster Production Modes
 
 - `canva`: default mode. Prepares a structured brief and asset map for an editable Canva poster workflow.
-- `openai`: generates a finished image through OpenAI after billing is enabled.
+- `openai`: generates a finished image through OpenAI after billing is enabled. Current direct mode is prompt-based and does not yet preserve uploaded brand assets as image inputs.
 - `local`: validates assets and builds the poster brief only.
 
 Default command:

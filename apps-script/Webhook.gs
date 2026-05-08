@@ -32,8 +32,40 @@ function extractWhatsAppMessage_(payload) {
 }
 
 function isAllowedSender_(sender) {
-  const allowed = getConfig_().allowedSenderNumber;
-  return !allowed || sender === allowed;
+  const allowedUsers = parseAllowedUsers_(getConfig_().allowedUsers);
+  if (!allowedUsers.length) {
+    return true;
+  }
+
+  const normalizedSender = normalizePhoneNumber_(sender);
+  return allowedUsers.indexOf(normalizedSender) !== -1;
+}
+
+function parseAllowedUsers_(value) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(/[\n,]+/)
+    .map(normalizePhoneNumber_)
+    .filter(function(number) {
+      return number;
+    });
+}
+
+function normalizePhoneNumber_(value) {
+  if (!value) {
+    return "";
+  }
+
+  const raw = String(value).trim();
+  if (!raw) {
+    return "";
+  }
+
+  const cleaned = raw.replace(/[^\d+]/g, "");
+  return cleaned.charAt(0) === "+" ? cleaned : "+" + cleaned;
 }
 
 function isDuplicateMessage_(messageId) {
@@ -63,4 +95,3 @@ function parseJson_(text) {
   }
   return JSON.parse(text);
 }
-

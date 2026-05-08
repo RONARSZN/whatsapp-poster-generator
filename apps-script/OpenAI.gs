@@ -18,9 +18,10 @@ function generatePosterWithOpenAI(prompt, assets, command) {
   });
 
   const status = response.getResponseCode();
-  const body = JSON.parse(response.getContentText());
+  const text = response.getContentText();
+  const body = parseOpenAiJson_(text);
   if (status < 200 || status >= 300) {
-    throw new Error("OpenAI image generation failed: " + response.getContentText());
+    throw new Error("OpenAI image generation failed (" + status + "): " + summarizeOpenAiError_(body, text));
   }
 
   const first = body.data && body.data[0];
@@ -31,3 +32,18 @@ function generatePosterWithOpenAI(prompt, assets, command) {
   return { base64: first.b64_json };
 }
 
+function parseOpenAiJson_(text) {
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return null;
+  }
+}
+
+function summarizeOpenAiError_(body, text) {
+  if (body && body.error && body.error.message) {
+    return body.error.message;
+  }
+
+  return String(text || "Unknown OpenAI error.").slice(0, 500);
+}

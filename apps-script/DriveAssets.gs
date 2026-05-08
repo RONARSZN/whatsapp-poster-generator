@@ -1,9 +1,11 @@
-function findProductManifest(productName) {
+function findProductManifest(productName, positionalBody) {
   const cfg = getConfig_();
   const rootId = requireConfigValue_("POSTER_ASSETS_ROOT_FOLDER_ID", cfg.posterAssetsRootFolderId);
   const root = DriveApp.getFolderById(rootId);
   const folders = root.getFolders();
   const target = String(productName || "").toLowerCase();
+  const body = normalizeManifestLookupText_(positionalBody || productName);
+  let prefixMatch = null;
 
   while (folders.hasNext()) {
     const folder = folders.next();
@@ -18,8 +20,17 @@ function findProductManifest(productName) {
     });
 
     if (names.indexOf(target) !== -1) {
-      return { ok: true, folder: folder, manifest: manifest };
+      return { ok: true, folder: folder, manifest: manifest, matchedName: target };
     }
+
+    const matchedName = findManifestNamePrefix_(names, body);
+    if (matchedName && (!prefixMatch || matchedName.length > prefixMatch.matchedName.length)) {
+      prefixMatch = { ok: true, folder: folder, manifest: manifest, matchedName: matchedName };
+    }
+  }
+
+  if (prefixMatch) {
+    return prefixMatch;
   }
 
   return { ok: false, error: 'I could not find assets for "' + productName + '".' };
@@ -124,4 +135,24 @@ function getFolderByPath_(folder, path) {
 function getChildFolderByName_(folder, name) {
   const folders = folder.getFoldersByName(name);
   return folders.hasNext() ? folders.next() : null;
+}
+
+function findManifestNamePrefix_(names, body) {
+  let matched = "";
+  names.forEach(function(name) {
+    const normalized = normalizeManifestLookupText_(name);
+    if (!normalized) {
+      return;
+    }
+
+    if ((body === normalized || body.indexOf(normalized + " ") === 0) && normalized.length > matched.length) {
+      matched = normalized;
+    }
+  });
+
+  return matched;
+}
+
+function normalizeManifestLookupText_(value) {
+  return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
 }

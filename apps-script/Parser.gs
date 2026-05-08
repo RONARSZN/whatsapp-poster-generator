@@ -16,7 +16,7 @@ function parsePosterCommand(text) {
   const size = normalizeSize_(kv.size || findSizeToken_(tokens) || "portrait");
   const mode = normalizeMode_(kv.mode || "canva");
   const style = kv.style || "default";
-  const cta = kv.cta || "Order today";
+  const cta = kv.cta || "";
   const pegNotes = kv.peg || kv.pegnotes || kv.inspo || "";
   const offer = kv.offer || inferOffer_(tokens);
 
@@ -38,9 +38,26 @@ function parsePosterCommand(text) {
       style: style,
       cta: cta,
       pegNotes: pegNotes,
-      rawText: raw
+      rawText: raw,
+      positionalBody: positionalBody,
+      hasExplicitOffer: Boolean(kv.offer),
+      hasExplicitCta: Boolean(kv.cta)
     }
   };
+}
+
+function applyManifestDefaultsToCommand_(command, manifest, matchedName) {
+  command.product = manifest.product || command.product;
+
+  if (!command.hasExplicitOffer) {
+    command.offer = inferOfferFromBody_(command.positionalBody, matchedName) || "Special offer";
+  }
+
+  if (!command.hasExplicitCta) {
+    command.cta = manifest.defaultCta || "Order today";
+  }
+
+  return command;
 }
 
 function parseKeyValueArgs_(body) {
@@ -62,6 +79,37 @@ function inferOffer_(tokens) {
   return tokens.slice(1).filter(function (token) {
     return !sizeWords[token.toLowerCase()] && !/^\w+=/.test(token);
   }).join(" ").trim();
+}
+
+function inferOfferFromBody_(body, matchedName) {
+  const withoutProduct = removeMatchedProductFromBody_(body, matchedName);
+  return withoutProduct
+    .split(/\s+/)
+    .filter(function(token) {
+      return !isSizeToken_(token);
+    })
+    .join(" ")
+    .trim();
+}
+
+function removeMatchedProductFromBody_(body, matchedName) {
+  const value = String(body || "").trim();
+  const product = String(matchedName || "").trim();
+  if (!value || !product) {
+    return value;
+  }
+
+  const normalizedValue = normalizeSpaces_(value).toLowerCase();
+  const normalizedProduct = normalizeSpaces_(product).toLowerCase();
+  if (normalizedValue === normalizedProduct) {
+    return "";
+  }
+
+  if (normalizedValue.indexOf(normalizedProduct + " ") === 0) {
+    return value.slice(product.length).trim();
+  }
+
+  return value;
 }
 
 function findSizeToken_(tokens) {
@@ -92,6 +140,15 @@ function normalizeSize_(size) {
   if (value === "square") return "1024x1024";
   if (value === "landscape") return "1536x1024";
   return "1024x1536";
+}
+
+function isSizeToken_(token) {
+  const sizes = { square: true, portrait: true, story: true, landscape: true };
+  return Boolean(sizes[String(token || "").toLowerCase()]);
+}
+
+function normalizeSpaces_(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
 }
 
 function normalizeMode_(mode) {

@@ -32,7 +32,7 @@ poster wakepark day pass promo portrait mode=openai
 poster wakepark day pass promo portrait mode=local
 ```
 
-Use `mode=canva` for editable poster production. Use `mode=openai` for direct image generation. Use `mode=local` for validation without generation.
+Use `mode=canva` for editable poster production. Use `mode=openai` for direct prompt-based image generation. Use `mode=local` for validation without generation.
 
 ## Inspiration Notes
 
@@ -131,7 +131,13 @@ WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
 POSTER_ASSETS_ROOT_FOLDER_ID
 OUTPUT_FOLDER_ID
-ALLOWED_SENDER_NUMBER
+ALLOWED_USERS
+```
+
+Only approved WhatsApp numbers can use the bot. Everyone else receives:
+
+```text
+Sorry, you are not authorized to use this poster generator.
 ```
 
 ## Common Errors
@@ -162,4 +168,4 @@ Local validation is ready. Canva is the default poster production workflow. Open
 
 Canva mode is for polished editable posters. The system prepares the poster brief, copy, brand notes and asset paths. Canva then creates or edits the poster as a design.
 
-Use Canva when quality control matters more than full automation. Use OpenAI when you want the fastest WhatsApp-to-image output.
+Use Canva when quality control and brand asset control matter more than full automation. Use OpenAI when you want the fastest WhatsApp-to-image output and can accept prompt-based generation.
