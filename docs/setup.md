@@ -111,7 +111,7 @@ Create one private Google Drive root folder for poster assets, then put each bra
 
 Create a separate output folder for generated posters and store that folder ID in `OUTPUT_FOLDER_ID`.
 
-For Wakepark, add these exact files before testing a real `poster wakepark...` command:
+For better Wakepark output, add these exact files:
 
 ```text
 WAKEPARK/LOGOS/logo-main.png
@@ -119,6 +119,8 @@ WAKEPARK/POSTER BACKGROUNDS/background-main.jpg
 WAKEPARK/WAKEPARK PHOTOS/hero-main.jpg
 WAKEPARK/RIDING PHOTOS/riding-main.jpg
 ```
+
+Template mode can still return a prototype poster if these files are missing. It will use a simple placeholder layout instead of real photos.
 
 Add Pro Shop assets by category:
 

@@ -72,6 +72,22 @@ function handlePosterRequest_(sender, text, messageId) {
 
   applyManifestDefaultsToCommand_(command.data, match.manifest, match.matchedName);
 
+  if (command.data.mode === "template") {
+    const image = generatePosterWithTemplate(command.data, match.manifest, match.folder);
+    const saved = savePosterToDrive(image, command.data, match.manifest);
+    sendWhatsAppImage(sender, saved);
+
+    logEvent_("poster_generated", {
+      sender: sender,
+      messageId: messageId,
+      product: command.data.product,
+      mode: command.data.mode,
+      outputFileId: saved.fileId
+    });
+
+    return { ok: true, mode: command.data.mode, fileId: saved.fileId };
+  }
+
   const validation = validateManifestAssets(match.manifest, match.folder);
   if (!validation.ok) {
     sendWhatsAppText(sender, validation.error);
@@ -88,22 +104,6 @@ function handlePosterRequest_(sender, text, messageId) {
       mode: command.data.mode
     });
     return { ok: true, mode: command.data.mode, prompt: prompt };
-  }
-
-  if (command.data.mode === "template") {
-    const image = generatePosterWithTemplate(command.data, match.manifest, match.folder);
-    const saved = savePosterToDrive(image, command.data, match.manifest);
-    sendWhatsAppImage(sender, saved);
-
-    logEvent_("poster_generated", {
-      sender: sender,
-      messageId: messageId,
-      product: command.data.product,
-      mode: command.data.mode,
-      outputFileId: saved.fileId
-    });
-
-    return { ok: true, mode: command.data.mode, fileId: saved.fileId };
   }
 
   if (command.data.mode === "canva") {

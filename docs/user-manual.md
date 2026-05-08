@@ -32,7 +32,7 @@ poster wakepark day pass promo portrait mode=template
 poster wakepark day pass promo portrait mode=local
 ```
 
-Use `mode=template` for the first working no-AI poster reply. Use `mode=canva` for editable poster briefs only. Use `mode=local` for validation without generation.
+Use `mode=template` for the first working no-AI poster reply. Template mode can run with only a matching `manifest.json`; missing image files fall back to a simple placeholder layout. Use `mode=canva` for editable poster briefs only. Use `mode=local` for validation without generation.
 
 ## Inspiration Notes
 
@@ -152,6 +152,8 @@ Missing file:
 ```text
 I found wakepark, but these files are missing: hero: WAKEPARK PHOTOS/hero-main.jpg
 ```
+
+This missing-file check applies to validation and brief modes. Template mode skips that check so the prototype can still return a poster.
 
 Bad command:
 
