@@ -1,0 +1,21 @@
+{
+  "product": "homies messhall",
+  "aliases": ["homies messhall", "messhall", "mess hall", "food hall"],
+  "brand": "Homies Messhall",
+  "categoryFolders": {
+    "menus": "MENUS",
+    "interiors": "INTERIORS",
+    "backgrounds": "BACKGROUNDS",
+    "merchandise": "MERCHANDISE",
+    "fonts": "FONTS",
+    "logos": "LOGOS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "BACKGROUNDS/background-main.jpg",
+    "menu": "MENUS/menu-main.jpg"
+  },
+  "styleNotes": "Casual food community promo style, warm interiors, clear menu or offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Eat with us"
+}

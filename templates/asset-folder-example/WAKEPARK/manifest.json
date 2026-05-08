@@ -1,0 +1,24 @@
+{
+  "product": "wakepark",
+  "aliases": ["wakepark", "wake park", "deca wakepark", "riding", "cable park"],
+  "brand": "Homies Approved Wakepark",
+  "categoryFolders": {
+    "pricing": "PRICING",
+    "parkPeripherals": "PARK PERIPHERALS",
+    "lifestyleShots": "LIFESTYLE SHOTS",
+    "wakeparkPhotos": "WAKEPARK PHOTOS",
+    "logos": "LOGOS",
+    "ridingPhotos": "RIDING PHOTOS",
+    "posterBackgrounds": "POSTER BACKGROUNDS",
+    "fonts": "FONTS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "POSTER BACKGROUNDS/background-main.jpg",
+    "hero": "WAKEPARK PHOTOS/hero-main.jpg",
+    "riding": "RIDING PHOTOS/riding-main.jpg"
+  },
+  "styleNotes": "Outdoor wakepark energy, bold action photography, clean promo layout and readable offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Ride with us"
+}

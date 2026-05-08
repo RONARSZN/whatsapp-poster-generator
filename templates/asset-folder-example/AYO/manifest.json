@@ -1,0 +1,21 @@
+{
+  "product": "ayo",
+  "aliases": ["ayo", "ayo cafe", "food", "menu"],
+  "brand": "AYO",
+  "categoryFolders": {
+    "menus": "MENUS",
+    "interiors": "INTERIORS",
+    "backgrounds": "BACKGROUNDS",
+    "merchandise": "MERCHANDISE",
+    "fonts": "FONTS",
+    "logos": "LOGOS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "BACKGROUNDS/background-main.jpg",
+    "menu": "MENUS/menu-main.jpg"
+  },
+  "styleNotes": "Warm food and lifestyle promo style, clean menu emphasis and readable offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Visit AYO"
+}
