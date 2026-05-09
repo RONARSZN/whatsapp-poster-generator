@@ -20,7 +20,7 @@ This project turns a short WhatsApp request into a generated poster reply. It pa
 - Command parser
 - Asset validation
 - Google Slides poster renderer
-- Canva poster brief builder for editable poster production
+- Canva and local text replies for parser-compatible workflow modes
 - WhatsApp Cloud API wrapper
 - PowerShell local checks
 - User manual in `docs/user-manual.md`
@@ -37,11 +37,11 @@ This checks the Homies example asset folders, validates referenced files, verifi
 
 ## Poster Production Modes
 
-- `template`: default poster mode.
-- `canva`: accepted for Canva-first workflow compatibility.
-- `local`: accepted for validation workflow compatibility.
+- `template`: default production mode. Generates a Google Slides poster, exports PNG to Drive and sends the image through WhatsApp.
+- `canva`: returns a manual Canva poster brief by WhatsApp text. It does not create or export a Canva design.
+- `local`: returns a validation-style WhatsApp text reply without generating an image.
 
-In the Vercel webhook, valid commands run through the image generation pipeline and return a Drive-hosted PNG to WhatsApp.
+In the Vercel webhook, `template` commands run through the image generation pipeline and return a Drive-hosted PNG to WhatsApp. `canva` and `local` commands return WhatsApp text replies.
 
 Default command:
 
@@ -97,12 +97,20 @@ Required Vercel environment variables:
 
 ```text
 GOOGLE_SERVICE_ACCOUNT_JSON
-GEMINI_API_KEY
 GOOGLE_DRIVE_FOLDER_ID
 WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
 ```
+
+Optional Vercel environment variables:
+
+```text
+GEMINI_API_KEY
+APPROVED_WHATSAPP_SENDERS
+```
+
+`GEMINI_API_KEY` improves poster copy. If it is missing or fails, manifest fallback copy is used. `APPROVED_WHATSAPP_SENDERS` is a comma-separated phone allowlist. Leave it blank only for testing.
 
 ## GitHub Sync Workflow
 

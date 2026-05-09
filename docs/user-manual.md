@@ -32,9 +32,7 @@ poster wakepark day pass promo portrait mode=template
 poster wakepark day pass promo portrait mode=local
 ```
 
-Use `mode=template` for the first working no-AI poster reply. Template mode can run with only a matching `manifest.json`; missing image files fall back to a simple placeholder layout. Use `mode=canva` for editable poster briefs only. Use `mode=local` for validation without generation.
-
-In the Vercel runtime, all valid modes are still accepted by the parser. The live webhook path returns a generated image URL through the same poster pipeline so Meta receives a stable response.
+Use `mode=template` for the first working poster reply. Template mode creates a Google Slides poster, exports a PNG to Drive and sends the image through WhatsApp. Use `mode=canva` for a manual editable-poster brief by WhatsApp text. Use `mode=local` for a validation-style WhatsApp text reply without generation.
 
 ## Inspiration Notes
 
@@ -66,7 +64,6 @@ Required Vercel environment variables:
 
 ```text
 GOOGLE_SERVICE_ACCOUNT_JSON
-GEMINI_API_KEY
 GOOGLE_DRIVE_FOLDER_ID
 WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
@@ -74,6 +71,15 @@ WHATSAPP_VERIFY_TOKEN
 ```
 
 `GOOGLE_SERVICE_ACCOUNT_JSON` should be the full service account key JSON pasted as one line.
+
+Optional:
+
+```text
+GEMINI_API_KEY
+APPROVED_WHATSAPP_SENDERS
+```
+
+`GEMINI_API_KEY` improves generated copy. If it is missing or fails, manifest fallback copy is used. `APPROVED_WHATSAPP_SENDERS` is a comma-separated phone allowlist.
 
 ## Brand Command Examples
 
@@ -167,7 +173,6 @@ You need these environment variables in Vercel:
 
 ```text
 GOOGLE_SERVICE_ACCOUNT_JSON
-GEMINI_API_KEY
 GOOGLE_DRIVE_FOLDER_ID
 WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
@@ -206,7 +211,7 @@ Missing file:
 I found wakepark, but these files are missing: hero: WAKEPARK PHOTOS/hero-main.jpg
 ```
 
-This missing-file check applies to validation and brief modes. Template mode skips that check so the prototype can still return a poster.
+This missing-file check applies to the PowerShell local check against `templates/asset-folder-example`. The Vercel runtime uses committed `/brands` manifests and does not require private source assets to be committed.
 
 Bad command:
 
@@ -220,6 +225,6 @@ Local validation is ready. Vercel deployment now replaces manual Google Apps Scr
 
 ## Canva Mode
 
-Canva mode is for polished editable poster briefs. The system prepares the poster brief, copy, brand notes and asset paths. Canva then creates or edits the poster as a design if your account supports the required Canva features.
+Canva mode is for polished editable poster briefs. The system prepares the poster brief, brand notes and asset keys, then sends that brief back through WhatsApp text. Canva creation or export stays manual in this repo.
 
 Use Canva when quality control and brand asset control matter more than full automation. It stays brief-only in this zero-cost prototype.

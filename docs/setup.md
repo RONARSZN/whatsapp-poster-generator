@@ -43,7 +43,6 @@ Set these environment variables in Vercel:
 
 ```text
 GOOGLE_SERVICE_ACCOUNT_JSON
-GEMINI_API_KEY
 GOOGLE_DRIVE_FOLDER_ID
 WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
@@ -51,6 +50,15 @@ WHATSAPP_VERIFY_TOKEN
 ```
 
 `GOOGLE_SERVICE_ACCOUNT_JSON` should be the full service account JSON pasted as a single-line string.
+
+Optional:
+
+```text
+GEMINI_API_KEY
+APPROVED_WHATSAPP_SENDERS
+```
+
+Use `APPROVED_WHATSAPP_SENDERS` as a comma-separated allowlist when the bot is connected to a real WhatsApp number.
 
 ## Google Apps Script Reference
 
@@ -62,7 +70,6 @@ Set these in Vercel project settings:
 
 ```text
 GOOGLE_SERVICE_ACCOUNT_JSON
-GEMINI_API_KEY
 GOOGLE_DRIVE_FOLDER_ID
 WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
@@ -77,7 +84,7 @@ This build does not need OpenAI, Ideogram, Replicate, Canva Enterprise or any pa
 
 Template mode is the default prototype path. It creates a simple no-AI poster through Google Slides, exports it as PNG, saves it to Drive and sends it through WhatsApp.
 
-Use Canva mode only when you want an editable brief. It does not auto-create or export Canva designs in this zero-cost prototype.
+Use Canva mode only when you want an editable brief returned by WhatsApp text. It does not auto-create or export Canva designs in this zero-cost prototype.
 
 Default command:
 

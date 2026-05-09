@@ -1,5 +1,5 @@
 import { parsePosterCommand } from "../lib/parser.js";
-import { runPosterPipeline } from "../lib/poster.js";
+import { buildPosterModeReply, runPosterPipeline } from "../lib/poster.js";
 import { sendImage, sendMessage } from "../lib/whatsapp.js";
 
 const ACK_MESSAGE = "Got your poster request. Generating it now. Please wait for the poster reply.";
@@ -70,15 +70,26 @@ export async function handlePost(req, res, deps) {
       return sendResponse(res, 200, "EVENT_RECEIVED");
     }
 
+    if (!isApprovedSender(message.from)) {
+      await safeSendMessage(deps, message.from, "This number is not approved to use the poster generator.");
+      return sendResponse(res, 200, "EVENT_RECEIVED");
+    }
+
     const parsed = parsePosterCommand(message.text);
     if (!parsed.ok) {
       await safeSendMessage(deps, message.from, formatErrorReply(ERROR_CODES.INVALID_COMMAND, parsed.error));
       return sendResponse(res, 200, "EVENT_RECEIVED");
     }
 
-    await safeSendMessage(deps, message.from, ACK_MESSAGE);
+    await safeSendMessage(deps, message.from, formatAckMessage(parsed.data.mode));
 
     try {
+      if (parsed.data.mode !== "template") {
+        const reply = await buildPosterModeReply(parsed.data);
+        await safeSendMessage(deps, message.from, reply);
+        return sendResponse(res, 200, "EVENT_RECEIVED");
+      }
+
       const result = await deps.runPosterPipeline(parsed.data);
       if (isFailureMessage(result)) {
         await safeSendMessage(deps, message.from, formatErrorReply(ERROR_CODES.POSTER_GENERATION_FAILED, result));
@@ -132,6 +143,32 @@ export function parseRequestBody(body) {
 }
 
 /**
+ * Check an optional comma-separated sender allowlist.
+ * @param {string} sender WhatsApp sender number.
+ * @returns {boolean} True when no allowlist exists or the sender is listed.
+ */
+function isApprovedSender(sender) {
+  const approved = String(process.env.APPROVED_WHATSAPP_SENDERS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (!approved.length) return true;
+
+  const normalizedSender = normalizePhone(sender);
+  return approved.some((value) => normalizePhone(value) === normalizedSender);
+}
+
+/**
+ * Normalize phone numbers for allowlist checks.
+ * @param {string} value Phone number value.
+ * @returns {string} Digits-only phone number.
+ */
+function normalizePhone(value) {
+  return String(value || "").replace(/[^\d]/g, "");
+}
+
+/**
  * Send a WhatsApp text reply while keeping webhook failures contained.
  * @param {object} deps Runtime dependencies.
  * @param {string} to Recipient number.
@@ -180,6 +217,23 @@ function formatErrorReply(code, message) {
  */
 function isFailureMessage(value) {
   return String(value || "").startsWith("Poster generation failed.");
+}
+
+/**
+ * Return an accurate acknowledgment for the selected workflow mode.
+ * @param {string} mode Parsed poster mode.
+ * @returns {string} WhatsApp acknowledgment text.
+ */
+function formatAckMessage(mode) {
+  if (mode === "canva") {
+    return "Got your Canva brief request. Preparing it now.";
+  }
+
+  if (mode === "local") {
+    return "Got your validation request. Checking it now.";
+  }
+
+  return ACK_MESSAGE;
 }
 
 /**
