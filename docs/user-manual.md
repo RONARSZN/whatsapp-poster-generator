@@ -176,6 +176,24 @@ WHATSAPP_VERIFY_TOKEN
 
 ## Common Errors
 
+The webhook sends an immediate acknowledgment for valid poster requests:
+
+```text
+Got your poster request. Generating it now. Please wait for the poster reply.
+```
+
+If something fails, the reply includes a stable error code.
+
+```text
+Error code: WP-001
+```
+
+Current codes:
+
+A. `WP-001` - Invalid command syntax. The bot did not run the poster pipeline.
+B. `WP-101` - Poster generation failed after a valid command. Check Gemini, Google Slides, Google Drive and manifest lookup logs.
+C. `WP-201` - WhatsApp image send failed. The bot attempted to send the poster image but Meta rejected the image message, so the reply includes the poster URL.
+
 Unknown product:
 
 ```text

@@ -68,6 +68,7 @@ test("GET rejects Meta verification when token differs", async () => {
 });
 
 test("POST always returns 200 when the poster pipeline fails", async () => {
+  const replies = [];
   const req = {
     method: "POST",
     body: {
@@ -97,10 +98,57 @@ test("POST always returns 200 when the poster pipeline fails", async () => {
     runPosterPipeline: async () => {
       throw new Error("pipeline down");
     },
-    sendMessage: async () => {},
+    sendMessage: async (to, text) => {
+      replies.push({ to, text });
+    },
     sendImage: async () => {}
   });
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body, "EVENT_RECEIVED");
+  assert.equal(replies[0].text, "Got your poster request. Generating it now. Please wait for the poster reply.");
+  assert.match(replies[1].text, /Error code: WP-101/);
+});
+
+test("POST sends an error code for invalid commands", async () => {
+  const replies = [];
+  const req = {
+    method: "POST",
+    body: {
+      entry: [
+        {
+          changes: [
+            {
+              value: {
+                messages: [
+                  {
+                    id: "msg-2",
+                    from: "639171234567",
+                    type: "text",
+                    text: { body: "hello" }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  };
+  const res = createResponse();
+
+  await handler(req, res, {
+    runPosterPipeline: async () => {
+      throw new Error("Pipeline should not run for invalid commands.");
+    },
+    sendMessage: async (to, text) => {
+      replies.push({ to, text });
+    },
+    sendImage: async () => {}
+  });
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body, "EVENT_RECEIVED");
+  assert.equal(replies.length, 1);
+  assert.match(replies[0].text, /Error code: WP-001/);
 });

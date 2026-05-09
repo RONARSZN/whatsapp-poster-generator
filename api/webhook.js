@@ -2,6 +2,13 @@ import { parsePosterCommand } from "../lib/parser.js";
 import { runPosterPipeline } from "../lib/poster.js";
 import { sendImage, sendMessage } from "../lib/whatsapp.js";
 
+const ACK_MESSAGE = "Got your poster request. Generating it now. Please wait for the poster reply.";
+const ERROR_CODES = {
+  INVALID_COMMAND: "WP-001",
+  POSTER_GENERATION_FAILED: "WP-101",
+  IMAGE_SEND_FAILED: "WP-201"
+};
+
 /**
  * Vercel serverless webhook handler for Meta WhatsApp Cloud API.
  * @param {object} req Vercel request.
@@ -65,20 +72,26 @@ export async function handlePost(req, res, deps) {
 
     const parsed = parsePosterCommand(message.text);
     if (!parsed.ok) {
-      await safeSendMessage(deps, message.from, parsed.error);
+      await safeSendMessage(deps, message.from, formatErrorReply(ERROR_CODES.INVALID_COMMAND, parsed.error));
       return sendResponse(res, 200, "EVENT_RECEIVED");
     }
+
+    await safeSendMessage(deps, message.from, ACK_MESSAGE);
 
     try {
       const result = await deps.runPosterPipeline(parsed.data);
       if (isFailureMessage(result)) {
-        await safeSendMessage(deps, message.from, result);
+        await safeSendMessage(deps, message.from, formatErrorReply(ERROR_CODES.POSTER_GENERATION_FAILED, result));
       } else {
         await safeSendImage(deps, message.from, result, "Generated poster");
       }
     } catch (error) {
       console.log(JSON.stringify({ type: "webhook_pipeline_failed", message: error.message }));
-      await safeSendMessage(deps, message.from, "Poster generation failed. Please try again or contact the team.");
+      await safeSendMessage(
+        deps,
+        message.from,
+        formatErrorReply(ERROR_CODES.POSTER_GENERATION_FAILED, "Poster generation failed. Please try again or contact the team.")
+      );
     }
   } catch (error) {
     console.log(JSON.stringify({ type: "webhook_post_failed", message: error.message }));
@@ -146,8 +159,18 @@ async function safeSendImage(deps, to, imageUrl, caption) {
     await deps.sendImage(to, imageUrl, caption);
   } catch (error) {
     console.log(JSON.stringify({ type: "whatsapp_image_failed", message: error.message }));
-    await safeSendMessage(deps, to, imageUrl);
+    await safeSendMessage(deps, to, formatErrorReply(ERROR_CODES.IMAGE_SEND_FAILED, `Image send failed. Poster URL: ${imageUrl}`));
   }
+}
+
+/**
+ * Format a user-facing WhatsApp error reply with a stable support code.
+ * @param {string} code Stable error code.
+ * @param {string} message Human-readable message.
+ * @returns {string} Error reply.
+ */
+function formatErrorReply(code, message) {
+  return `${message}\n\nError code: ${code}`;
 }
 
 /**
