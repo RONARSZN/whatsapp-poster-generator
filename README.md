@@ -91,6 +91,8 @@ Register this URL in Meta:
 https://whatsapp-poster-generator.vercel.app/api/webhook
 ```
 
+Runtime: Vercel Node.js `24.x`.
+
 Required Vercel environment variables:
 
 ```text

@@ -37,6 +37,8 @@ The webhook endpoint is:
 /api/webhook.js
 ```
 
+Use Node.js `24.x` in `package.json` and Vercel project settings.
+
 Set these environment variables in Vercel:
 
 ```text
