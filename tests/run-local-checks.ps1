@@ -2,6 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $assetRoot = Join-Path $root "templates\asset-folder-example"
+$brandRoot = Join-Path $root "brands"
 
 function Parse-KeyValueArgs {
     param([string]$Body)
@@ -214,6 +215,26 @@ $results = @(
     Invoke-Case "template mode" 'poster wakepark weekend promo portrait mode=template' "wakepark" "weekend promo" "Ride with us" "template"
     Invoke-Case "local mode" 'poster wakepark test promo portrait mode=local' "wakepark" "test promo" "Ride with us" "local"
 )
+
+foreach ($brand in @("wakepark", "proshop", "ayo", "messhall")) {
+    $manifestPath = Join-Path $brandRoot "$brand\manifest.json"
+    if (-not (Test-Path $manifestPath)) {
+        throw "Missing Vercel brand manifest: brands\$brand\manifest.json"
+    }
+
+    $manifest = Get-Content -Raw $manifestPath | ConvertFrom-Json
+    foreach ($field in @("product", "aliases", "brand", "brand_voice", "colors", "typography", "promo_types", "fallback_copy")) {
+        if (-not $manifest.PSObject.Properties[$field]) {
+            throw "brands\$brand\manifest.json missing field: $field"
+        }
+    }
+
+    foreach ($copyField in @("headline", "tagline", "cta")) {
+        if (-not $manifest.fallback_copy.PSObject.Properties[$copyField]) {
+            throw "brands\$brand\manifest.json fallback_copy missing field: $copyField"
+        }
+    }
+}
 
 Write-Host "Local checks passed."
 Write-Host ""

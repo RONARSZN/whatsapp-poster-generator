@@ -1,0 +1,34 @@
+{
+  "product": "homies messhall",
+  "aliases": ["homies messhall", "messhall", "mess hall", "food hall", "homies food", "messhall food"],
+  "brand": "Homies Messhall",
+  "brand_voice": "Casual, hearty, rider-crowd food culture, unpretentious.",
+  "colors": {
+    "primary": "#1A0A00",
+    "secondary": "#F0E6D3",
+    "accent": "#E85D04"
+  },
+  "typography": "Bold casual sans-serif.",
+  "promo_types": ["daily_special", "group_meal", "weekend_menu", "food_promo"],
+  "categoryFolders": {
+    "menus": "MENUS",
+    "interiors": "INTERIORS",
+    "backgrounds": "BACKGROUNDS",
+    "merchandise": "MERCHANDISE",
+    "fonts": "FONTS",
+    "logos": "LOGOS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "BACKGROUNDS/background-main.jpg",
+    "menu": "MENUS/menu-main.jpg"
+  },
+  "styleNotes": "Casual food community promo style, warm interiors, clear menu or offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Visit Homies Messhall at Deca Wake Park.",
+  "fallback_copy": {
+    "headline": "Fuel Up.",
+    "tagline": "Good food at the park.",
+    "cta": "Visit Homies Messhall at Deca Wake Park."
+  }
+}

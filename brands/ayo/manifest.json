@@ -1,0 +1,36 @@
+{
+  "product": "ayo",
+  "aliases": ["ayo", "ayo coffeehouse", "ayo cafe", "ayo coffee", "coffeehouse", "coffee", "kape bahay"],
+  "brand": "AYO Coffeehouse",
+  "handle": "@ayo.coffeehouse",
+  "location": "Inside Deca Wake Park",
+  "brand_voice": "Warm, approachable, local neighborhood feel, playful, Filipino warmth. Brand phrases: Hey You Let's Go, Kape Bahay, Coffee Neighbour.",
+  "colors": {
+    "primary": "#3B1F0C",
+    "secondary": "#F5ECD7",
+    "accent": "#C4622D"
+  },
+  "typography": "Friendly rounded sans-serif, mixed case.",
+  "promo_types": ["daily_special", "seasonal_drink", "food_item", "opening_hours"],
+  "categoryFolders": {
+    "menus": "MENUS",
+    "interiors": "INTERIORS",
+    "backgrounds": "BACKGROUNDS",
+    "merchandise": "MERCHANDISE",
+    "fonts": "FONTS",
+    "logos": "LOGOS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "BACKGROUNDS/background-main.jpg",
+    "menu": "MENUS/menu-main.jpg"
+  },
+  "styleNotes": "Warm food and lifestyle promo style, clean menu emphasis and readable offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Open Tues-Sun at Deca Wake Park.",
+  "fallback_copy": {
+    "headline": "Hey, come in.",
+    "tagline": "Your friendly wakepark coffee house.",
+    "cta": "Open Tues-Sun at Deca Wake Park."
+  }
+}

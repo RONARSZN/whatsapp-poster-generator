@@ -1,0 +1,35 @@
+{
+  "product": "proshop",
+  "aliases": ["proshop", "pro shop", "homies proshop", "homies approved", "gear", "wake gear"],
+  "brand": "Homies Approved Pro Shop",
+  "handle": "@homiesapproved",
+  "brand_voice": "Gear-authority, streetwear-adjacent, trusted, direct, rider-endorsed, no fluff.",
+  "colors": {
+    "primary": "#111111",
+    "secondary": "#FFFFFF",
+    "accent": "#FF3B00"
+  },
+  "typography": "Clean bold sans-serif, confident.",
+  "promo_types": ["gear_drop", "new_stock", "sale", "bundle_deal", "brand_feature"],
+  "categoryFolders": {
+    "gear": "GEAR",
+    "scenes": "SCENES",
+    "posterBackgrounds": "POSTER BACKGROUNDS ASSET",
+    "merchandise": "MERCHANDISE",
+    "fonts": "FONTS",
+    "logos": "LOGOS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "POSTER BACKGROUNDS ASSET/background-main.jpg",
+    "gear": "GEAR/gear-main.jpg"
+  },
+  "styleNotes": "Retail wake gear promo style, crisp product focus, strong contrast and clear pricing or offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Shop at Homies Pro Shop.",
+  "fallback_copy": {
+    "headline": "GEAR UP.",
+    "tagline": "Philippines' most trusted wake shop.",
+    "cta": "Shop at Homies Pro Shop."
+  }
+}

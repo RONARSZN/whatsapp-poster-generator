@@ -2,7 +2,7 @@
 
 ## What It Does
 
-You send a poster command. The system finds the matching asset folder, reads its `manifest.json`, renders a simple no-AI poster and sends it back through WhatsApp after live integrations are connected.
+You send a poster command. The Vercel webhook parses the request, reads the matching brand `manifest.json`, generates short copy with Gemini, renders a Google Slides poster, exports it as PNG, saves it to Google Drive and sends the image back through WhatsApp.
 
 ## Basic Command
 
@@ -34,6 +34,8 @@ poster wakepark day pass promo portrait mode=local
 
 Use `mode=template` for the first working no-AI poster reply. Template mode can run with only a matching `manifest.json`; missing image files fall back to a simple placeholder layout. Use `mode=canva` for editable poster briefs only. Use `mode=local` for validation without generation.
 
+In the Vercel runtime, all valid modes are still accepted by the parser. The live webhook path returns a generated image URL through the same poster pipeline so Meta receives a stable response.
+
 ## Inspiration Notes
 
 Use `peg=` when you want to send creative direction with the request:
@@ -49,6 +51,45 @@ You can also use:
 ```text
 poster wakepark day pass promo portrait inspo="clean magazine layout, big headline, strong product photo"
 ```
+
+`peg=` and `inspo=` influence Gemini copy and creative direction. They should steer mood, layout logic, composition, color direction or typography feel. They do not replace the brand manifest and should not be used to copy an exact design.
+
+## Vercel Deployment Flow
+
+The live webhook is now designed for Vercel serverless deployment. Push to GitHub, let Vercel auto-deploy the latest commit, then register this webhook URL in Meta:
+
+```text
+https://whatsapp-poster-generator.vercel.app/api/webhook
+```
+
+Required Vercel environment variables:
+
+```text
+GOOGLE_SERVICE_ACCOUNT_JSON
+GEMINI_API_KEY
+GOOGLE_DRIVE_FOLDER_ID
+WHATSAPP_TOKEN
+WHATSAPP_PHONE_NUMBER_ID
+WHATSAPP_VERIFY_TOKEN
+```
+
+`GOOGLE_SERVICE_ACCOUNT_JSON` should be the full service account key JSON pasted as one line.
+
+## Brand Command Examples
+
+```text
+poster wakepark day pass promo portrait peg="raw rider energy, bold sports layout"
+poster proshop gear drop portrait peg="streetwear product drop feel"
+poster ayo seasonal drink portrait peg="warm Kape Bahay neighborhood vibe"
+poster messhall weekend menu portrait peg="hearty rider food after a session"
+```
+
+Supported brands:
+
+A. `wakepark` - Decawake Clark Cable Park, `@decawake_clark`
+B. `proshop` - Homies Approved Pro Shop, `@homiesapproved`
+C. `ayo` - AYO Coffeehouse, `@ayo.coffeehouse`
+D. `messhall` - Homies Messhall food and dining at Deca Wake Park
 
 ## Asset Folder Rule
 
@@ -120,23 +161,17 @@ powershell -ExecutionPolicy Bypass -File .\tests\run-local-checks.ps1
 
 This checks the example folder, validates the manifest and builds a sample prompt.
 
-## Live Setup Needed Later
+## Live Setup
 
-You need these script properties in Google Apps Script:
+You need these environment variables in Vercel:
 
 ```text
-WHATSAPP_ACCESS_TOKEN
+GOOGLE_SERVICE_ACCOUNT_JSON
+GEMINI_API_KEY
+GOOGLE_DRIVE_FOLDER_ID
+WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
-POSTER_ASSETS_ROOT_FOLDER_ID
-OUTPUT_FOLDER_ID
-ALLOWED_USERS
-```
-
-Only approved WhatsApp numbers can use the bot. Everyone else receives:
-
-```text
-Sorry, you are not authorized to use this poster generator.
 ```
 
 ## Common Errors
@@ -163,7 +198,7 @@ Use: poster product offer size. Example: poster wakepark day pass promo portrait
 
 ## Current Build Status
 
-Local validation is ready. Template mode is the default poster production workflow for the first prototype. Google Drive deployment and WhatsApp webhook setup still require your live credentials and account approvals.
+Local validation is ready. Vercel deployment now replaces manual Google Apps Script redeployment. Google Drive, Gemini and WhatsApp still require valid live credentials in Vercel.
 
 ## Canva Mode
 

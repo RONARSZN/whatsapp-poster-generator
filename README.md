@@ -1,20 +1,25 @@
 # WhatsApp Poster Generator
 
-Local-first poster request engine for WhatsApp-triggered promo posters.
+Vercel serverless poster request engine for WhatsApp-triggered promo posters.
 
 ## Purpose
 
-This project turns a short WhatsApp request into a simple no-AI poster reply. It validates brand asset folders, renders a prototype poster with Google Slides, saves the PNG to Drive and sends it back through WhatsApp.
+This project turns a short WhatsApp request into a generated poster reply. It parses the command, loads a brand manifest, generates short copy with Gemini, renders a Google Slides poster, exports the PNG to Drive and sends it back through WhatsApp Cloud API.
 
 ## Current Build
 
-- Google Apps Script backend scaffold
+- Vercel serverless webhook at `/api/webhook.js`
+- Node.js parser and poster pipeline in `/lib`
+- Google Drive and Slides integration through `googleapis`
+- Gemini copy generation with manifest fallback copy
+- Google Apps Script source retained as migration reference
 - Local asset folder workflow
 - One `manifest.json` per brand or campaign root
+- Vercel brand manifests in `/brands`
 - Brand category folders for AYO, PROSHOP, WAKEPARK and HOMIES MESSHALL
 - Command parser
 - Asset validation
-- No-AI template poster renderer
+- Google Slides poster renderer
 - Canva poster brief builder for editable poster production
 - WhatsApp Cloud API wrapper
 - PowerShell local checks
@@ -28,13 +33,15 @@ Run:
 powershell -ExecutionPolicy Bypass -File .\tests\run-local-checks.ps1
 ```
 
-This checks the Homies example asset folders, validates referenced files and builds sample poster data without calling paid generation APIs or WhatsApp.
+This checks the Homies example asset folders, validates referenced files, verifies the Vercel brand manifests and builds sample poster data without calling live APIs or WhatsApp.
 
 ## Poster Production Modes
 
-- `template`: default zero-cost prototype mode. Creates a simple no-AI poster image through Google Slides, saves it to Drive and sends it through WhatsApp.
-- `canva`: prepares a structured brief and asset map only. It does not auto-create or export designs.
-- `local`: validates assets and builds the poster brief only.
+- `template`: default poster mode.
+- `canva`: accepted for Canva-first workflow compatibility.
+- `local`: accepted for validation workflow compatibility.
+
+In the Vercel webhook, valid commands run through the image generation pipeline and return a Drive-hosted PNG to WhatsApp.
 
 Default command:
 
@@ -74,7 +81,26 @@ Validate the current folder structure:
 powershell -ExecutionPolicy Bypass -File .\tests\run-local-checks.ps1
 ```
 
-This prototype does not require OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
+This build does not require OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
+
+## Vercel Webhook
+
+Register this URL in Meta:
+
+```text
+https://whatsapp-poster-generator.vercel.app/api/webhook
+```
+
+Required Vercel environment variables:
+
+```text
+GOOGLE_SERVICE_ACCOUNT_JSON
+GEMINI_API_KEY
+GOOGLE_DRIVE_FOLDER_ID
+WHATSAPP_TOKEN
+WHATSAPP_PHONE_NUMBER_ID
+WHATSAPP_VERIFY_TOKEN
+```
 
 ## GitHub Sync Workflow
 

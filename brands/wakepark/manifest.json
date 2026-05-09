@@ -1,0 +1,38 @@
+{
+  "product": "wakepark",
+  "aliases": ["wakepark", "wake park", "deca wakepark", "decawake", "decawake clark", "riding", "cable park"],
+  "brand": "Decawake Clark Cable Park",
+  "handle": "@decawake_clark",
+  "brand_voice": "Raw, hyped, authentic rider culture, community-driven, street-sport energy, no corporate tone.",
+  "colors": {
+    "primary": "#0A0A0A",
+    "secondary": "#FFFFFF",
+    "accent": "#D4F500"
+  },
+  "typography": "Bold condensed sans-serif, all caps for headlines.",
+  "promo_types": ["day_pass", "beginner_session", "weekend_promo", "group_booking", "competition"],
+  "categoryFolders": {
+    "pricing": "PRICING",
+    "parkPeripherals": "PARK PERIPHERALS",
+    "lifestyleShots": "LIFESTYLE SHOTS",
+    "wakeparkPhotos": "WAKEPARK PHOTOS",
+    "logos": "LOGOS",
+    "ridingPhotos": "RIDING PHOTOS",
+    "posterBackgrounds": "POSTER BACKGROUNDS",
+    "fonts": "FONTS"
+  },
+  "assets": {
+    "logo": "LOGOS/logo-main.png",
+    "background": "POSTER BACKGROUNDS/background-main.jpg",
+    "hero": "WAKEPARK PHOTOS/hero-main.jpg",
+    "riding": "RIDING PHOTOS/riding-main.jpg"
+  },
+  "styleNotes": "Outdoor wakepark energy, bold action photography, clean promo layout and readable offer text.",
+  "defaultSize": "1024x1536",
+  "defaultCta": "Book your session now.",
+  "fallback_copy": {
+    "headline": "RIDE. REPEAT.",
+    "tagline": "Clark's legit cable park.",
+    "cta": "Book your session now."
+  }
+}

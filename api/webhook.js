@@ -1,0 +1,190 @@
+import { parsePosterCommand } from "../lib/parser.js";
+import { runPosterPipeline } from "../lib/poster.js";
+import { sendImage, sendMessage } from "../lib/whatsapp.js";
+
+/**
+ * Vercel serverless webhook handler for Meta WhatsApp Cloud API.
+ * @param {object} req Vercel request.
+ * @param {object} res Vercel response.
+ * @param {object} deps Optional test dependency overrides.
+ * @returns {Promise<void>} Completes the HTTP response.
+ */
+export default async function handler(req, res, deps = {}) {
+  try {
+    if (req.method === "GET") {
+      return handleGet(req, res);
+    }
+
+    if (req.method === "POST") {
+      return await handlePost(req, res, {
+        runPosterPipeline: deps.runPosterPipeline || runPosterPipeline,
+        sendMessage: deps.sendMessage || sendMessage,
+        sendImage: deps.sendImage || sendImage
+      });
+    }
+
+    return sendResponse(res, 405, "Method Not Allowed");
+  } catch (error) {
+    console.log(JSON.stringify({ type: "webhook_handler_failed", message: error.message }));
+    return sendResponse(res, 200, "EVENT_RECEIVED");
+  }
+}
+
+/**
+ * Handle Meta webhook verification.
+ * @param {object} req Request.
+ * @param {object} res Response.
+ * @returns {void}
+ */
+export function handleGet(req, res) {
+  const query = req.query || {};
+  const token = query["hub.verify_token"];
+  const challenge = query["hub.challenge"];
+
+  if (token === process.env.WHATSAPP_VERIFY_TOKEN) {
+    return sendResponse(res, 200, String(challenge || ""));
+  }
+
+  return sendResponse(res, 403, "Forbidden");
+}
+
+/**
+ * Handle incoming WhatsApp message notifications without leaking failures to Meta.
+ * @param {object} req Request.
+ * @param {object} res Response.
+ * @param {object} deps Runtime dependencies.
+ * @returns {Promise<void>} Completes the HTTP response.
+ */
+export async function handlePost(req, res, deps) {
+  try {
+    const payload = parseRequestBody(req.body);
+    const message = extractWhatsAppMessage(payload);
+    if (!message) {
+      return sendResponse(res, 200, "EVENT_RECEIVED");
+    }
+
+    const parsed = parsePosterCommand(message.text);
+    if (!parsed.ok) {
+      await safeSendMessage(deps, message.from, parsed.error);
+      return sendResponse(res, 200, "EVENT_RECEIVED");
+    }
+
+    try {
+      const result = await deps.runPosterPipeline(parsed.data);
+      if (isFailureMessage(result)) {
+        await safeSendMessage(deps, message.from, result);
+      } else {
+        await safeSendImage(deps, message.from, result, "Generated poster");
+      }
+    } catch (error) {
+      console.log(JSON.stringify({ type: "webhook_pipeline_failed", message: error.message }));
+      await safeSendMessage(deps, message.from, "Poster generation failed. Please try again or contact the team.");
+    }
+  } catch (error) {
+    console.log(JSON.stringify({ type: "webhook_post_failed", message: error.message }));
+  }
+
+  return sendResponse(res, 200, "EVENT_RECEIVED");
+}
+
+/**
+ * Extract the first text WhatsApp message from a Meta webhook payload.
+ * @param {object} payload Meta webhook payload.
+ * @returns {{id: string, from: string, text: string} | null} Message or null.
+ */
+export function extractWhatsAppMessage(payload) {
+  const value = payload?.entry?.[0]?.changes?.[0]?.value;
+  const msg = value?.messages?.[0];
+  if (!msg || msg.type !== "text") {
+    return null;
+  }
+
+  return {
+    id: msg.id,
+    from: msg.from,
+    text: msg.text?.body || ""
+  };
+}
+
+/**
+ * Parse a Vercel request body that may already be an object or a string.
+ * @param {object|string|Buffer} body Request body.
+ * @returns {object} Parsed body.
+ */
+export function parseRequestBody(body) {
+  if (!body) return {};
+  if (Buffer.isBuffer(body)) return JSON.parse(body.toString("utf8"));
+  if (typeof body === "string") return JSON.parse(body);
+  return body;
+}
+
+/**
+ * Send a WhatsApp text reply while keeping webhook failures contained.
+ * @param {object} deps Runtime dependencies.
+ * @param {string} to Recipient number.
+ * @param {string} text Reply text.
+ * @returns {Promise<void>} Completes after send attempt.
+ */
+async function safeSendMessage(deps, to, text) {
+  try {
+    await deps.sendMessage(to, text);
+  } catch (error) {
+    console.log(JSON.stringify({ type: "whatsapp_text_failed", message: error.message }));
+  }
+}
+
+/**
+ * Send a WhatsApp image reply and fall back to a text URL if image send fails.
+ * @param {object} deps Runtime dependencies.
+ * @param {string} to Recipient number.
+ * @param {string} imageUrl Public image URL.
+ * @param {string} caption Image caption.
+ * @returns {Promise<void>} Completes after send attempt.
+ */
+async function safeSendImage(deps, to, imageUrl, caption) {
+  try {
+    await deps.sendImage(to, imageUrl, caption);
+  } catch (error) {
+    console.log(JSON.stringify({ type: "whatsapp_image_failed", message: error.message }));
+    await safeSendMessage(deps, to, imageUrl);
+  }
+}
+
+/**
+ * Check whether a pipeline result is the user-facing failure message.
+ * @param {string} value Pipeline result.
+ * @returns {boolean} True when the result is a failure message.
+ */
+function isFailureMessage(value) {
+  return String(value || "").startsWith("Poster generation failed.");
+}
+
+/**
+ * Send a plain text response across Vercel-style and test response objects.
+ * @param {object} res Response object.
+ * @param {number} statusCode HTTP status code.
+ * @param {string} body Response body.
+ * @returns {unknown} Response send result.
+ */
+function sendResponse(res, statusCode, body) {
+  if (typeof res.status === "function") {
+    res.status(statusCode);
+  } else {
+    res.statusCode = statusCode;
+  }
+
+  if (typeof res.setHeader === "function") {
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  }
+
+  if (typeof res.send === "function") {
+    return res.send(body);
+  }
+
+  if (typeof res.end === "function") {
+    return res.end(body);
+  }
+
+  res.body = body;
+  return undefined;
+}

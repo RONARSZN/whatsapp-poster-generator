@@ -23,45 +23,53 @@ WhatsApp User
 -> Send Poster Image Back to WhatsApp
 ```
 
-## Google Apps Script
+## Vercel Serverless
 
-1. Create a new Apps Script project.
-2. Copy files from `apps-script`.
-3. Set script properties.
-4. Deploy as a web app.
-5. Use the web app URL as the Meta WhatsApp webhook URL.
-
-## Script Properties
-
-Set these in Apps Script project settings:
+Vercel is now the deployment target. Push to GitHub, let Vercel deploy the latest commit and use this webhook URL in Meta:
 
 ```text
-WHATSAPP_ACCESS_TOKEN
+https://whatsapp-poster-generator.vercel.app/api/webhook
+```
+
+The webhook endpoint is:
+
+```text
+/api/webhook.js
+```
+
+Set these environment variables in Vercel:
+
+```text
+GOOGLE_SERVICE_ACCOUNT_JSON
+GEMINI_API_KEY
+GOOGLE_DRIVE_FOLDER_ID
+WHATSAPP_TOKEN
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_VERIFY_TOKEN
-POSTER_ASSETS_ROOT_FOLDER_ID
-OUTPUT_FOLDER_ID
-ALLOWED_USERS
 ```
 
-Do not hardcode live phone numbers, folder IDs, verify tokens or account-specific values in source files. Keep them in Apps Script Properties.
+`GOOGLE_SERVICE_ACCOUNT_JSON` should be the full service account JSON pasted as a single-line string.
 
-`ALLOWED_USERS` should contain approved WhatsApp phone numbers. Use E.164 format with country code:
+## Google Apps Script Reference
 
-```javascript
-ALLOWED_USERS = [
-  "+639171234567",
-  "+639181234567"
-]
-```
+The old Apps Script files remain in `apps-script/` as a migration reference. They are not the live deployment target for the Vercel flow.
 
-If the sender is not in `ALLOWED_USERS`, reply:
+## Environment Variables
+
+Set these in Vercel project settings:
 
 ```text
-Sorry, you are not authorized to use this poster generator.
+GOOGLE_SERVICE_ACCOUNT_JSON
+GEMINI_API_KEY
+GOOGLE_DRIVE_FOLDER_ID
+WHATSAPP_TOKEN
+WHATSAPP_PHONE_NUMBER_ID
+WHATSAPP_VERIFY_TOKEN
 ```
 
-This prototype does not need OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
+Do not hardcode live phone numbers, folder IDs, verify tokens or account-specific values in source files.
+
+This build does not need OpenAI, Ideogram, Replicate, Canva Enterprise or any paid image-generation API.
 
 ## Canva Mode
 
@@ -105,11 +113,11 @@ Peg notes guide mood, layout logic, composition, color direction or typography f
 - [ ] Upload or host generated image if required
 - [ ] Send poster image back through WhatsApp Cloud API
 
-## Drive Asset Folders
+## Drive Output Folder
 
-Create one private Google Drive root folder for poster assets, then put each brand or campaign folder inside it. Store the root folder ID in `POSTER_ASSETS_ROOT_FOLDER_ID`.
+Create one Google Drive folder for generated posters and store that folder ID in `GOOGLE_DRIVE_FOLDER_ID`.
 
-Create a separate output folder for generated posters and store that folder ID in `OUTPUT_FOLDER_ID`.
+Brand data now lives in committed manifests under `/brands`. Keep private source assets out of Git in `assets-local/` or `private-assets/` unless a specific asset is safe to commit.
 
 For better Wakepark output, add these exact files:
 

@@ -3,6 +3,11 @@
 .env.*
 !.env.example
 *.local
+*service-account*.json
+*service_account*.json
+*credentials*.json
+*secret*.json
+*key*.json
 secrets/
 credentials/
 tokens/
@@ -45,4 +50,3 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
-
